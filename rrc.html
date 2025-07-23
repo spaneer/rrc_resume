@@ -1,207 +1,243 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>5G RRC Transitions - NSA & SA with Re-establishment & Handover</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+  <meta charset="UTF-8" />
+  <title>RRC Sequence Diagrams</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #0e1c26;
-      color: white;
+      font-family: Arial, sans-serif;
+      background: #f9fafb;
       margin: 0;
       padding: 0;
-      overflow-x: hidden;
-      user-select: none;
     }
 
-    h1 {
-      text-align: center;
-      margin-top: 30px;
-      font-size: 2em;
-    }
-
-    .nav-buttons {
+    .tabs {
       display: flex;
-      justify-content: center;
-      margin: 20px 0;
+      background-color: #1f2937;
+      padding: 10px;
     }
 
-    .nav-buttons button {
-      margin: 0 10px;
-      padding: 10px 20px;
-      font-size: 16px;
+    .tabs button {
+      flex: 1;
+      background: none;
       border: none;
-      background-color: #00bcd4;
       color: white;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    .nav-buttons button:hover {
-      background-color: #0097a7;
-    }
-
-    .flow-section {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 40px;
-    }
-
-    .state-row {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 30px 0;
-      flex-wrap: wrap;
-    }
-
-    .state-box {
-      background: #007acc;
-      padding: 20px 30px;
-      margin: 10px;
-      border-radius: 10px;
+      padding: 10px;
       font-weight: bold;
-      font-size: 1.1em;
-      transition: transform 0.3s;
+      cursor: pointer;
     }
 
-    .state-box:hover {
-      transform: scale(1.1);
+    .tabs button.active {
+      border-bottom: 3px solid #10b981;
+    }
+
+    .tab-content {
+      display: none;
+      padding: 20px;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .diagram {
+      display: flex;
+      justify-content: space-around;
+      position: relative;
+      border-top: 2px solid #ccc;
+      padding-top: 40px;
+    }
+
+    .actor {
+      text-align: center;
+      position: relative;
+      flex: 1;
+    }
+
+    .actor::before {
+      content: "";
+      position: absolute;
+      top: 40px;
+      left: 50%;
+      width: 2px;
+      height: calc(100% - 40px);
+      background: #ccc;
+      transform: translateX(-50%);
+    }
+
+    .msg {
+      position: absolute;
+      display: flex;
+      align-items: center;
+      font-size: 14px;
+      background: #e5e7eb;
+      padding: 3px 10px;
+      border-radius: 5px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      white-space: nowrap;
     }
 
     .arrow {
-      font-size: 2em;
-      margin: 0 15px;
-      color: #fff;
+      width: 0;
+      height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      margin-left: 5px;
     }
 
-    .active {
-      display: flex;
+    .right .arrow {
+      border-left: 8px solid #4b5563;
     }
 
-    .highlight {
-      background-color: #f39c12 !important;
+    .left .arrow {
+      border-right: 8px solid #4b5563;
+      margin-left: 0;
+      margin-right: 5px;
+    }
+
+    .right {
+      flex-direction: row;
+    }
+
+    .left {
+      flex-direction: row-reverse;
     }
   </style>
 </head>
-<body oncontextmenu="return false">
-  <h1>5G RRC State Transitions</h1>
-
-  <div class="nav-buttons">
-    <button onclick="showFlow('nsa')">NSA Flow</button>
-    <button onclick="showFlow('sa')">SA Flow</button>
+<body>
+  <div class="tabs">
+    <button class="tablink active" data-tab="idle">Idle → Connected</button>
+    <button class="tablink" data-tab="paging">Paging</button>
+    <button class="tablink" data-tab="reconfig">Reconfiguration</button>
+    <button class="tablink" data-tab="handover">Handover</button>
+    <button class="tablink" data-tab="release">Release</button>
+    <button class="tablink" data-tab="inactive">Inactive → Connected</button>
   </div>
 
-  <!-- NSA Flow Section -->
-  <div id="nsa" class="flow-section active">
-    <h2>NSA RRC State Flow</h2>
+  <!-- Idle to Connected -->
+  <div id="idle" class="tab-content active">
+    <h2>Idle to Connected</h2>
+    <div class="diagram">
+      <div class="actor">UE</div>
+      <div class="actor">gNB</div>
+      <div class="actor">AMF</div>
 
-    <!-- Standard Flow -->
-    <div class="state-row">
-      <div class="state-box" id="nsa_idle">RRC_IDLE</div>
-      <div class="arrow">→</div>
-      <div class="state-box" id="nsa_conn">RRC_CONNECTED</div>
-      <div class="arrow">→</div>
-      <div class="state-box" id="nsa_inactive">RRC_INACTIVE</div>
-    </div>
-
-    <!-- Resume & Release -->
-    <div class="state-row">
-      <div class="state-box" id="nsa_resume">RRC_RESUME</div>
-      <div class="arrow">→</div>
-      <div class="state-box" id="nsa_back_conn">RRC_CONNECTED</div>
-      <div class="arrow">→</div>
-      <div class="state-box" id="nsa_release">RRC_IDLE (Released)</div>
-    </div>
-
-    <!-- Re-establishment & Handover -->
-    <div class="state-row">
-      <div class="state-box highlight" id="nsa_reest">RRC Re-establishment</div>
-      <div class="arrow">⟲</div>
-      <div class="state-box" id="nsa_conn2">RRC_CONNECTED</div>
-
-      <div class="arrow">⇨</div>
-      <div class="state-box highlight" id="nsa_ho">Handover</div>
-      <div class="arrow">→</div>
-      <div class="state-box" id="nsa_target">RRC_CONNECTED (Target)</div>
+      <div class="msg right" style="top:60px; left:10%;">RRC Connection Request <div class="arrow"></div></div>
+      <div class="msg left" style="top:100px; left:25%;">RRC Setup <div class="arrow"></div></div>
+      <div class="msg right" style="top:140px; left:10%;">RRC Setup Complete <div class="arrow"></div></div>
+      <div class="msg right" style="top:180px; left:40%;">NAS Registration Request <div class="arrow"></div></div>
+      <div class="msg left" style="top:220px; left:55%;">NAS Accept <div class="arrow"></div></div>
     </div>
   </div>
 
-  <!-- SA Flow Section -->
-  <div id="sa" class="flow-section">
-    <h2>SA RRC State Flow</h2>
+  <!-- Paging -->
+  <div id="paging" class="tab-content">
+    <h2>Paging Procedure</h2>
+    <div class="diagram">
+      <div class="actor">AMF</div>
+      <div class="actor">gNB</div>
+      <div class="actor">UE</div>
 
-    <!-- Standard Flow -->
-    <div class="state-row">
-      <div class="state-box" id="sa_idle">RRC_IDLE</div>
-      <div class="arrow">→</div>
-      <div class="state-box" id="sa_conn">RRC_CONNECTED</div>
-      <div class="arrow">→</div>
-      <div class="state-box" id="sa_inactive">RRC_INACTIVE</div>
+      <div class="msg right" style="top:60px; left:5%;">Paging Message <div class="arrow"></div></div>
+      <div class="msg right" style="top:100px; left:40%;">Paging Indication <div class="arrow"></div></div>
+      <div class="msg left" style="top:140px; left:55%;">RRC Connection Request <div class="arrow"></div></div>
     </div>
+  </div>
 
-    <!-- Resume & Release -->
-    <div class="state-row">
-      <div class="state-box" id="sa_resume">RRC_RESUME</div>
-      <div class="arrow">→</div>
-      <div class="state-box" id="sa_back_conn">RRC_CONNECTED</div>
-      <div class="arrow">→</div>
-      <div class="state-box" id="sa_release">RRC_IDLE (Released)</div>
+  <!-- Reconfiguration -->
+  <div id="reconfig" class="tab-content">
+    <h2>RRC Reconfiguration</h2>
+    <div class="diagram">
+      <div class="actor">gNB</div>
+      <div class="actor">UE</div>
+
+      <div class="msg right" style="top:60px; left:10%;">RRC Reconfiguration <div class="arrow"></div></div>
+      <div class="msg left" style="top:100px; left:25%;">RRC Reconfiguration Complete <div class="arrow"></div></div>
     </div>
+  </div>
 
-    <!-- Re-establishment & Handover -->
-    <div class="state-row">
-      <div class="state-box highlight" id="sa_reest">RRC Re-establishment</div>
-      <div class="arrow">⟲</div>
-      <div class="state-box" id="sa_conn2">RRC_CONNECTED</div>
+  <!-- Handover -->
+  <div id="handover" class="tab-content">
+    <h2>Handover Procedure</h2>
+    <div class="diagram">
+      <div class="actor">Source gNB</div>
+      <div class="actor">Target gNB</div>
+      <div class="actor">UE</div>
 
-      <div class="arrow">⇨</div>
-      <div class="state-box highlight" id="sa_ho">Handover</div>
-      <div class="arrow">→</div>
-      <div class="state-box" id="sa_target">RRC_CONNECTED (Target)</div>
+      <div class="msg right" style="top:60px; left:5%;">Handover Request <div class="arrow"></div></div>
+      <div class="msg left" style="top:100px; left:20%;">Handover Ack <div class="arrow"></div></div>
+      <div class="msg right" style="top:140px; left:40%;">RRC Reconfiguration (HO Cmd) <div class="arrow"></div></div>
+      <div class="msg left" style="top:180px; left:55%;">HO Confirm <div class="arrow"></div></div>
+    </div>
+  </div>
+
+  <!-- Release -->
+  <div id="release" class="tab-content">
+    <h2>RRC Connection Release</h2>
+    <div class="diagram">
+      <div class="actor">gNB</div>
+      <div class="actor">UE</div>
+
+      <div class="msg right" style="top:60px; left:10%;">RRC Release <div class="arrow"></div></div>
+      <div class="msg left" style="top:100px; left:25%;">Release Complete <div class="arrow"></div></div>
+    </div>
+  </div>
+
+  <!-- Inactive to Connected -->
+  <div id="inactive" class="tab-content">
+    <h2>Inactive to Connected</h2>
+    <div class="diagram">
+      <div class="actor">UE</div>
+      <div class="actor">gNB</div>
+
+      <div class="msg right" style="top:60px; left:10%;">Resume Request <div class="arrow"></div></div>
+      <div class="msg left" style="top:100px; left:25%;">Resume Response <div class="arrow"></div></div>
     </div>
   </div>
 
   <script>
-    // Disable copy/cut/paste and keyboard shortcuts
-    document.addEventListener('copy', e => e.preventDefault());
-    document.addEventListener('cut', e => e.preventDefault());
-    document.addEventListener('paste', e => e.preventDefault());
-    document.addEventListener('keydown', e => {
-      if ((e.ctrlKey || e.metaKey) && ['c', 'x', 'v', 'u'].includes(e.key.toLowerCase())) {
-        e.preventDefault();
-      }
+    // Tab control
+    document.querySelectorAll('.tablink').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tablink').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
     });
 
-    function showFlow(type) {
-      document.getElementById('nsa').classList.remove('active');
-      document.getElementById('sa').classList.remove('active');
-      document.getElementById(type).classList.add('active');
+    // Copy/paste/inspect prevent
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('copy', e => e.preventDefault());
+    document.onkeydown = e => {
+      if ((e.ctrlKey && ['c', 'u'].includes(e.key)) || e.key === 'F12') {
+        e.preventDefault();
+        return false;
+      }
+    };
 
-      anime({
-        targets: `#${type} .state-box`,
-        scale: [0.6, 1],
-        opacity: [0, 1],
-        delay: anime.stagger(100),
-        easing: 'easeOutBack',
-        duration: 500
-      });
-    }
-
-    // Default animation on load
-    window.onload = () => {
-      anime({
-        targets: '#nsa .state-box',
-        scale: [0.6, 1],
-        opacity: [0, 1],
-        delay: anime.stagger(100),
-        easing: 'easeOutBack',
-        duration: 500
-      });
-    }
+    // Multi-tab detection
+    const ch = new BroadcastChannel('rrc-tab-detect');
+    let opened = false;
+    ch.onmessage = msg => {
+      if (msg.data === 'open' && opened) alert("Multiple tabs detected.");
+      opened = true;
+    };
+    ch.postMessage('open');
   </script>
 </body>
 </html>
