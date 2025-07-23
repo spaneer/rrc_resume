@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RRC States and Transitions – NSA & SA</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f8fb;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1, h2 {
+      text-align: center;
+      color: #2a2a2a;
+    }
+
+    .timeline {
+      position: relative;
+      max-width: 950px;
+      margin: auto;
+      padding: 20px 0;
+    }
+
+    .step {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      margin: 30px 0;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+      border-left: 6px solid #4CAF50;
+      position: relative;
+      opacity: 0;
+      transform: translateX(-40px);
+      animation: slideIn 0.7s ease-out forwards;
+    }
+
+    .step:nth-child(even) {
+      border-left: 6px solid #2196F3;
+    }
+
+    .step:nth-child(odd) {
+      animation-delay: calc(var(--i) * 0.3s);
+    }
+
+    .step:nth-child(even) {
+      animation-delay: calc(var(--i) * 0.3s + 0.2s);
+    }
+
+    @keyframes slideIn {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .state {
+      font-size: 1.1em;
+      font-weight: bold;
+      color: #1a73e8;
+    }
+
+    .mode {
+      font-style: italic;
+      color: #555;
+      margin-top: 4px;
+    }
+
+    .transition {
+      margin-top: 8px;
+      font-size: 0.95em;
+      color: #333;
+    }
+
+    .transition strong {
+      color: #d84315;
+    }
+
+    .content {
+      margin-top: 10px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #1a73e8;
+      color: #fff;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.85em;
+      margin-right: 8px;
+    }
+
+    .badge.nsa { background: #e91e63; }
+    .badge.sa { background: #4caf50; }
+    .badge.lte { background: #ff9800; }
+  </style>
+</head>
+<body>
+  <h1>RRC States & Transitions</h1>
+  <h2>NSA and SA – Scenario-Based Web Timeline</h2>
+
+  <div class="timeline">
+
+    <div class="step" style="--i:0">
+      <div class="state">1. Power ON → IDLE</div>
+      <div class="mode"><span class="badge nsa">NSA</span><span class="badge sa">SA</span></div>
+      <div class="transition"><strong>Transition:</strong> UE Off → <strong>RRC_IDLE</strong></div>
+      <div class="content">
+        UE powers on, searches and synchronizes with the network, reads system info, and registers with the core.
+      </div>
+    </div>
+
+    <div class="step" style="--i:1">
+      <div class="state">2. User Data Trigger</div>
+      <div class="mode"><span class="badge nsa">NSA</span><span class="badge sa">SA</span></div>
+      <div class="transition"><strong>Transition:</strong> <strong>RRC_IDLE → RRC_CONNECTED</strong></div>
+      <div class="content">
+        User opens an app or sends data. UE performs RRC Setup procedure and enters the connected state.
+      </div>
+    </div>
+
+    <div class="step" style="--i:2">
+      <div class="state">3. Network Paging</div>
+      <div class="mode"><span class="badge nsa">NSA</span><span class="badge sa">SA</span></div>
+      <div class="transition"><strong>Transition:</strong> <strong>RRC_IDLE → RRC_CONNECTED</strong></div>
+      <div class="content">
+        Network pages the UE. UE resumes from idle and reconnects to handle downlink data or signaling.
+      </div>
+    </div>
+
+    <div class="step" style="--i:3">
+      <div class="state">4. Connected → Inactive</div>
+      <div class="mode"><span class="badge sa">SA only</span></div>
+      <div class="transition"><strong>Transition:</strong> <strong>RRC_CONNECTED → RRC_INACTIVE</strong></div>
+      <div class="content">
+        In 5G SA, UE may be moved to RRC_INACTIVE for faster future resume and to conserve battery.
+      </div>
+    </div>
+
+    <div class="step" style="--i:4">
+      <div class="state">5. Resume from Inactive</div>
+      <div class="mode"><span class="badge sa">SA only</span></div>
+      <div class="transition"><strong>Transition:</strong> <strong>RRC_INACTIVE → RRC_CONNECTED</strong></div>
+      <div class="content">
+        When data is required again, UE uses the RRC Resume procedure, avoiding full setup and reducing latency.
+      </div>
+    </div>
+
+    <div class="step" style="--i:5">
+      <div class="state">6. Inactivity Timer Expired</div>
+      <div class="mode"><span class="badge nsa">NSA</span><span class="badge sa">SA</span></div>
+      <div class="transition"><strong>Transition:</strong> <strong>RRC_CONNECTED → RRC_IDLE</strong> or <strong>RRC_INACTIVE</strong></div>
+      <div class="content">
+        If the user is inactive for a while, the UE releases resources and moves back to idle or inactive (in SA).
+      </div>
+    </div>
+
+    <div class="step" style="--i:6">
+      <div class="state">7. Mobility / Handover</div>
+      <div class="mode"><span class="badge nsa">NSA</span><span class="badge sa">SA</span></div>
+      <div class="transition"><strong>Transition:</strong> <strong>RRC_CONNECTED → RRC_CONNECTED</strong> (new cell)</div>
+      <div class="content">
+        While moving, UE hands over to a different cell or frequency, remaining in connected state throughout.
+      </div>
+    </div>
+
+    <div class="step" style="--i:7">
+      <div class="state">8. ENDC Activation (Dual Connectivity)</div>
+      <div class="mode"><span class="badge nsa">NSA only</span><span class="badge lte">LTE Anchor</span></div>
+      <div class="transition"><strong>Transition:</strong> <strong>LTE RRC_CONNECTED + Add NR</strong></div>
+      <div class="content">
+        In NSA, UE remains in LTE RRC_CONNECTED. NR is added for high-speed data; control remains over LTE.
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>
