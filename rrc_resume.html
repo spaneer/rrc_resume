@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>RRC State Transitions Diagram</title>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true });
+  </script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f0f2f5;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    h2 {
+      color: #2c3e50;
+    }
+
+    .diagram-container {
+      position: relative;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .watermark {
+      position: absolute;
+      top: 0;
+      left: 0;
+      font-size: 3em;
+      color: rgba(0, 0, 0, 0.05);
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 10;
+      transform: rotate(-30deg);
+      white-space: nowrap;
+    }
+
+    .mermaid {
+      z-index: 1;
+    }
+  </style>
+  <script>
+    // Disable right-click
+    document.addEventListener('contextmenu', function (e) {
+      e.preventDefault();
+    });
+
+    // Disable key combos
+    document.addEventListener('keydown', function (e) {
+      if (
+        (e.ctrlKey && ['c', 'u', 'x', 'a', 's'].includes(e.key.toLowerCase())) ||
+        e.key === 'F12'
+      ) {
+        e.preventDefault();
+      }
+    });
+  </script>
+</head>
+<body>
+  <h2>RRC State Transitions in 5G NR</h2>
+
+  <div class="diagram-container" id="diagram">
+    <div class="watermark">© YourSite.com</div>
+    <div class="mermaid">
+      sequenceDiagram
+        participant UE
+        participant gNB
+
+        %% Initial connection setup
+        UE->>gNB: RRCConnectionSetupComplete
+        Note right of gNB: UE enters RRC_CONNECTED
+
+        %% Transition to INACTIVE
+        gNB-->>UE: RRCRelease (suspendConfig)
+        Note right of UE: UE enters RRC_INACTIVE
+
+        %% Paging-based resume
+        Note over UE,gNB: Time passes...
+        gNB-->>UE: Paging (RRC Resume Identity)
+        UE->>gNB: RRCResumeRequest
+        gNB-->>UE: RRCResume
+        Note right of UE: UE resumes to RRC_CONNECTED
+
+        %% Back to INACTIVE again
+        gNB-->>UE: RRCRelease (suspendConfig)
+        Note right of UE: UE enters RRC_INACTIVE again
+
+        %% Mobility-based resume
+        UE->>gNB: RRCResumeRequest (mobility)
+        gNB-->>UE: RRCResume
+        Note right of UE: UE resumes after mobility
+
+        %% Final RRC Release to IDLE
+        gNB-->>UE: RRCRelease
+        Note right of UE: UE transitions to RRC_IDLE
+    </div>
+  </div>
+</body>
+</html>
