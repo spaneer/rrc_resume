@@ -1,180 +1,207 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>RRC States and Transitions – NSA & SA</title>
+  <meta charset="UTF-8">
+  <title>5G RRC Transitions - NSA & SA with Re-establishment & Handover</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #f4f8fb;
+      background: #0e1c26;
+      color: white;
       margin: 0;
-      padding: 20px;
+      padding: 0;
+      overflow-x: hidden;
+      user-select: none;
     }
 
-    h1, h2 {
+    h1 {
       text-align: center;
-      color: #2a2a2a;
+      margin-top: 30px;
+      font-size: 2em;
     }
 
-    .timeline {
-      position: relative;
-      max-width: 950px;
-      margin: auto;
-      padding: 20px 0;
+    .nav-buttons {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
     }
 
-    .step {
-      background: #fff;
-      border-radius: 12px;
-      padding: 20px;
+    .nav-buttons button {
+      margin: 0 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      background-color: #00bcd4;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .nav-buttons button:hover {
+      background-color: #0097a7;
+    }
+
+    .flow-section {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 40px;
+    }
+
+    .state-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
       margin: 30px 0;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
-      border-left: 6px solid #4CAF50;
-      position: relative;
-      opacity: 0;
-      transform: translateX(-40px);
-      animation: slideIn 0.7s ease-out forwards;
+      flex-wrap: wrap;
     }
 
-    .step:nth-child(even) {
-      border-left: 6px solid #2196F3;
-    }
-
-    .step:nth-child(odd) {
-      animation-delay: calc(var(--i) * 0.3s);
-    }
-
-    .step:nth-child(even) {
-      animation-delay: calc(var(--i) * 0.3s + 0.2s);
-    }
-
-    @keyframes slideIn {
-      to {
-        opacity: 1;
-        transform: translateX(0);
-      }
-    }
-
-    .state {
-      font-size: 1.1em;
+    .state-box {
+      background: #007acc;
+      padding: 20px 30px;
+      margin: 10px;
+      border-radius: 10px;
       font-weight: bold;
-      color: #1a73e8;
+      font-size: 1.1em;
+      transition: transform 0.3s;
     }
 
-    .mode {
-      font-style: italic;
-      color: #555;
-      margin-top: 4px;
+    .state-box:hover {
+      transform: scale(1.1);
     }
 
-    .transition {
-      margin-top: 8px;
-      font-size: 0.95em;
-      color: #333;
-    }
-
-    .transition strong {
-      color: #d84315;
-    }
-
-    .content {
-      margin-top: 10px;
-    }
-
-    .badge {
-      display: inline-block;
-      background: #1a73e8;
+    .arrow {
+      font-size: 2em;
+      margin: 0 15px;
       color: #fff;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 0.85em;
-      margin-right: 8px;
     }
 
-    .badge.nsa { background: #e91e63; }
-    .badge.sa { background: #4caf50; }
-    .badge.lte { background: #ff9800; }
+    .active {
+      display: flex;
+    }
+
+    .highlight {
+      background-color: #f39c12 !important;
+    }
   </style>
 </head>
-<body>
-  <h1>RRC States & Transitions</h1>
-  <h2>NSA and SA – Scenario-Based Web Timeline</h2>
+<body oncontextmenu="return false">
+  <h1>5G RRC State Transitions</h1>
 
-  <div class="timeline">
-
-    <div class="step" style="--i:0">
-      <div class="state">1. Power ON → IDLE</div>
-      <div class="mode"><span class="badge nsa">NSA</span><span class="badge sa">SA</span></div>
-      <div class="transition"><strong>Transition:</strong> UE Off → <strong>RRC_IDLE</strong></div>
-      <div class="content">
-        UE powers on, searches and synchronizes with the network, reads system info, and registers with the core.
-      </div>
-    </div>
-
-    <div class="step" style="--i:1">
-      <div class="state">2. User Data Trigger</div>
-      <div class="mode"><span class="badge nsa">NSA</span><span class="badge sa">SA</span></div>
-      <div class="transition"><strong>Transition:</strong> <strong>RRC_IDLE → RRC_CONNECTED</strong></div>
-      <div class="content">
-        User opens an app or sends data. UE performs RRC Setup procedure and enters the connected state.
-      </div>
-    </div>
-
-    <div class="step" style="--i:2">
-      <div class="state">3. Network Paging</div>
-      <div class="mode"><span class="badge nsa">NSA</span><span class="badge sa">SA</span></div>
-      <div class="transition"><strong>Transition:</strong> <strong>RRC_IDLE → RRC_CONNECTED</strong></div>
-      <div class="content">
-        Network pages the UE. UE resumes from idle and reconnects to handle downlink data or signaling.
-      </div>
-    </div>
-
-    <div class="step" style="--i:3">
-      <div class="state">4. Connected → Inactive</div>
-      <div class="mode"><span class="badge sa">SA only</span></div>
-      <div class="transition"><strong>Transition:</strong> <strong>RRC_CONNECTED → RRC_INACTIVE</strong></div>
-      <div class="content">
-        In 5G SA, UE may be moved to RRC_INACTIVE for faster future resume and to conserve battery.
-      </div>
-    </div>
-
-    <div class="step" style="--i:4">
-      <div class="state">5. Resume from Inactive</div>
-      <div class="mode"><span class="badge sa">SA only</span></div>
-      <div class="transition"><strong>Transition:</strong> <strong>RRC_INACTIVE → RRC_CONNECTED</strong></div>
-      <div class="content">
-        When data is required again, UE uses the RRC Resume procedure, avoiding full setup and reducing latency.
-      </div>
-    </div>
-
-    <div class="step" style="--i:5">
-      <div class="state">6. Inactivity Timer Expired</div>
-      <div class="mode"><span class="badge nsa">NSA</span><span class="badge sa">SA</span></div>
-      <div class="transition"><strong>Transition:</strong> <strong>RRC_CONNECTED → RRC_IDLE</strong> or <strong>RRC_INACTIVE</strong></div>
-      <div class="content">
-        If the user is inactive for a while, the UE releases resources and moves back to idle or inactive (in SA).
-      </div>
-    </div>
-
-    <div class="step" style="--i:6">
-      <div class="state">7. Mobility / Handover</div>
-      <div class="mode"><span class="badge nsa">NSA</span><span class="badge sa">SA</span></div>
-      <div class="transition"><strong>Transition:</strong> <strong>RRC_CONNECTED → RRC_CONNECTED</strong> (new cell)</div>
-      <div class="content">
-        While moving, UE hands over to a different cell or frequency, remaining in connected state throughout.
-      </div>
-    </div>
-
-    <div class="step" style="--i:7">
-      <div class="state">8. ENDC Activation (Dual Connectivity)</div>
-      <div class="mode"><span class="badge nsa">NSA only</span><span class="badge lte">LTE Anchor</span></div>
-      <div class="transition"><strong>Transition:</strong> <strong>LTE RRC_CONNECTED + Add NR</strong></div>
-      <div class="content">
-        In NSA, UE remains in LTE RRC_CONNECTED. NR is added for high-speed data; control remains over LTE.
-      </div>
-    </div>
-
+  <div class="nav-buttons">
+    <button onclick="showFlow('nsa')">NSA Flow</button>
+    <button onclick="showFlow('sa')">SA Flow</button>
   </div>
+
+  <!-- NSA Flow Section -->
+  <div id="nsa" class="flow-section active">
+    <h2>NSA RRC State Flow</h2>
+
+    <!-- Standard Flow -->
+    <div class="state-row">
+      <div class="state-box" id="nsa_idle">RRC_IDLE</div>
+      <div class="arrow">→</div>
+      <div class="state-box" id="nsa_conn">RRC_CONNECTED</div>
+      <div class="arrow">→</div>
+      <div class="state-box" id="nsa_inactive">RRC_INACTIVE</div>
+    </div>
+
+    <!-- Resume & Release -->
+    <div class="state-row">
+      <div class="state-box" id="nsa_resume">RRC_RESUME</div>
+      <div class="arrow">→</div>
+      <div class="state-box" id="nsa_back_conn">RRC_CONNECTED</div>
+      <div class="arrow">→</div>
+      <div class="state-box" id="nsa_release">RRC_IDLE (Released)</div>
+    </div>
+
+    <!-- Re-establishment & Handover -->
+    <div class="state-row">
+      <div class="state-box highlight" id="nsa_reest">RRC Re-establishment</div>
+      <div class="arrow">⟲</div>
+      <div class="state-box" id="nsa_conn2">RRC_CONNECTED</div>
+
+      <div class="arrow">⇨</div>
+      <div class="state-box highlight" id="nsa_ho">Handover</div>
+      <div class="arrow">→</div>
+      <div class="state-box" id="nsa_target">RRC_CONNECTED (Target)</div>
+    </div>
+  </div>
+
+  <!-- SA Flow Section -->
+  <div id="sa" class="flow-section">
+    <h2>SA RRC State Flow</h2>
+
+    <!-- Standard Flow -->
+    <div class="state-row">
+      <div class="state-box" id="sa_idle">RRC_IDLE</div>
+      <div class="arrow">→</div>
+      <div class="state-box" id="sa_conn">RRC_CONNECTED</div>
+      <div class="arrow">→</div>
+      <div class="state-box" id="sa_inactive">RRC_INACTIVE</div>
+    </div>
+
+    <!-- Resume & Release -->
+    <div class="state-row">
+      <div class="state-box" id="sa_resume">RRC_RESUME</div>
+      <div class="arrow">→</div>
+      <div class="state-box" id="sa_back_conn">RRC_CONNECTED</div>
+      <div class="arrow">→</div>
+      <div class="state-box" id="sa_release">RRC_IDLE (Released)</div>
+    </div>
+
+    <!-- Re-establishment & Handover -->
+    <div class="state-row">
+      <div class="state-box highlight" id="sa_reest">RRC Re-establishment</div>
+      <div class="arrow">⟲</div>
+      <div class="state-box" id="sa_conn2">RRC_CONNECTED</div>
+
+      <div class="arrow">⇨</div>
+      <div class="state-box highlight" id="sa_ho">Handover</div>
+      <div class="arrow">→</div>
+      <div class="state-box" id="sa_target">RRC_CONNECTED (Target)</div>
+    </div>
+  </div>
+
+  <script>
+    // Disable copy/cut/paste and keyboard shortcuts
+    document.addEventListener('copy', e => e.preventDefault());
+    document.addEventListener('cut', e => e.preventDefault());
+    document.addEventListener('paste', e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && ['c', 'x', 'v', 'u'].includes(e.key.toLowerCase())) {
+        e.preventDefault();
+      }
+    });
+
+    function showFlow(type) {
+      document.getElementById('nsa').classList.remove('active');
+      document.getElementById('sa').classList.remove('active');
+      document.getElementById(type).classList.add('active');
+
+      anime({
+        targets: `#${type} .state-box`,
+        scale: [0.6, 1],
+        opacity: [0, 1],
+        delay: anime.stagger(100),
+        easing: 'easeOutBack',
+        duration: 500
+      });
+    }
+
+    // Default animation on load
+    window.onload = () => {
+      anime({
+        targets: '#nsa .state-box',
+        scale: [0.6, 1],
+        opacity: [0, 1],
+        delay: anime.stagger(100),
+        easing: 'easeOutBack',
+        duration: 500
+      });
+    }
+  </script>
 </body>
 </html>
