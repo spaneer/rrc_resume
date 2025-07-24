@@ -1,21 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>RRC State Transition Flows - 5G SA/NSA</title>
   <script type="module">
     import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs";
-    mermaid.initialize({ startOnLoad: true });
+    mermaid.initialize({ startOnLoad: false });
+
+    window.mermaid = mermaid; // expose globally for later use
+    window.renderMermaid = () => {
+      const active = document.querySelector(".tab-content.active .mermaid");
+      if (active) mermaid.init(undefined, active);
+    };
+    window.addEventListener("DOMContentLoaded", () => {
+      mermaid.init(undefined, document.querySelectorAll(".tab-content.active .mermaid"));
+    });
   </script>
   <style>
     body {
       font-family: Arial, sans-serif;
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
+      margin: 0;
+      padding: 0 20px;
+      box-sizing: border-box;
     }
-    .tabs { overflow: hidden; border-bottom: 1px solid #ccc; margin-bottom: 10px; }
+    .tabs {
+      overflow: hidden;
+      border-bottom: 1px solid #ccc;
+      margin-bottom: 10px;
+    }
     .tab {
       float: left;
       padding: 10px 20px;
@@ -25,10 +37,23 @@
       border-bottom: none;
       margin-right: 5px;
     }
-    .tab.active { background: white; font-weight: bold; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    .mermaid { background: #f9f9f9; padding: 10px; border-radius: 5px; }
+    .tab.active {
+      background: white;
+      font-weight: bold;
+    }
+    .tab-content {
+      display: none;
+      clear: both;
+      padding-bottom: 50px;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .mermaid {
+      background: #f9f9f9;
+      padding: 10px;
+      border-radius: 5px;
+    }
   </style>
   <script>
     document.addEventListener("contextmenu", e => e.preventDefault());
@@ -42,10 +67,18 @@
     function showTab(index) {
       const tabs = document.querySelectorAll(".tab");
       const contents = document.querySelectorAll(".tab-content");
+
       tabs.forEach((tab, i) => {
         tab.classList.toggle("active", i === index);
         contents[i].classList.toggle("active", i === index);
       });
+
+      // Re-render Mermaid in active tab
+      if (window.renderMermaid) {
+        setTimeout(() => window.renderMermaid(), 10);
+      }
+
+      window.scrollTo(0, 0); // optional: scroll to top
     }
   </script>
 </head>
@@ -63,7 +96,7 @@
   <div class="tab" onclick="showTab(6)">RRC Inactive</div>
   <div class="tab" onclick="showTab(7)">Xn Handover</div>
 </div>
-
+  
 <!-- RRC Resume -->
 <div class="tab-content active"><div class="mermaid">
 sequenceDiagram
